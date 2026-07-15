@@ -3,3 +3,5 @@ This model plans to be especially promising in preventing general delays in supp
 and can be applied to various different situations apart from the data used.
 
 Uses the Supply Chain Shipment Dataset off Kaggle
+
+Prakruthi Rao
