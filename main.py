@@ -28,6 +28,10 @@ df_filtered = df[columns_used].copy()
 df_filtered['scheduled delivery date'] = pd.to_datetime(df_filtered['scheduled delivery date'])
 df_filtered['delivered to client date'] = pd.to_datetime(df_filtered['delivered to client date'])
 
+## converting string(country) to binary(one-hot) with getdummies!
+
+c = pd.get_dummies(df_filtered, columns = ["country"], dtype = str)
+
 ## now making new column with boolean condition for the above ^
 
 df_filtered["delivered late"] = df_filtered["delivered to client date"] > df['scheduled delivery date']
@@ -36,4 +40,14 @@ df_filtered["delivered late"] = df_filtered["delivered to client date"] > df['sc
 ## syntax things: removing index prevents row index # from becoming an extra column within new dataset
 df_filtered.to_csv('Filtered_Shipment_Date.csv', index = False)
 
+
+# confirming changes
 print(df_filtered.head())
+
+print(df_filtered.isnull().sum())
+
+
+
+#####E## new code outside filtering
+
+##df_filtered['Late by metrics'] = df_filtered[]
