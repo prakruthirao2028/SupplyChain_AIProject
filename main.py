@@ -7,7 +7,8 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree, DecisionTreeRegresso
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.metrics import precision_score, recall_score, f1_score, classification_report, confusion_matrix
+
 
 df = pd.read_csv('Suppy_Chain_Shipment_Data.csv')
 
@@ -119,18 +120,21 @@ for model_name, model in models.items():
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
         importance = model.feature_importances_
+        
+    cm = confusion_matrix(y_test, y_pred)
+    class_report = classification_report(y_test, y_pred)
+
+    print("Confusion Matrix:")
+    print(cm)
+    print("Classification Report:")
+    print(class_report)
 
 
-##print metrics
 
-precision = precision_score(y_test, y_pred)
-print('Precision: %f' % precision)
-# recall: tp / (tp + fn)
-recall = recall_score(y_test, y_pred)
-print('Recall: %f' % recall)
-# f1: 2 tp / (2 tp + fp + fn)
-f1 = f1_score(y_test, y_pred)
-print('F1 score: %f' % f1)
 
-### done for the day so far, all three models are being run!!
+### done for the day(7/20) so far, all three models are being run!!
 ## time to figure out the other stuff 
+
+
+##(7/21) print metrics ^^ within for loop ---> lol that was my mistake
+
