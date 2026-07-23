@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import precision_score, recall_score, f1_score, classification_report, confusion_matrix
-
+import joblib as jb
 
 df = pd.read_csv('Suppy_Chain_Shipment_Data.csv')
 
@@ -52,10 +52,6 @@ df_filtered.to_csv('Filtered_Shipment_Date.csv', index = False)
 
 # confirming changes
 print(df_filtered.head())
-
-print(df_filtered.isnull().sum())
-
-
 
 #####E## new code outside filtering
 
@@ -101,13 +97,13 @@ models = {
     "Random Forest": RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
 }
 
-## most difficult piece of code 3: (ig jk)
-## we need to do EVEN more for this goofy logistic regression
+## most difficult piece of code (ig jk)
+## we need to do EVEN more for logistic regression
 
 for model_name, model in models.items():
-    print(f"{'='*50}")
-    print(f"Model meep moop: {model_name}")
-    print(f"{'='*50}")
+    print("*")
+    print(f"Model: {model_name}")
+    print("*")
 
     if model_name == "Logistic Regression":
         model.fit(X_train_scaled, y_train)
@@ -129,12 +125,33 @@ for model_name, model in models.items():
     print("Classification Report:")
     print(class_report)
 
+# IMPORTANT
 
+print("Top 5 Features Driving Predictions:")
+importance_df = pd.DataFrame({
+    'Feature': new_features, # Matches the variable
+    'Importance': importances
+}).sort_values(by='Importance', ascending=False)
+    
+    # Loop through the top 5 and print them cleanly
+for index, row in importance_df.head(5).iterrows():
+    print(f"- {row['Feature']}: {row['Importance']:.4f}")
+print("\n")
 
 
 ### done for the day(7/20) so far, all three models are being run!!
 ## time to figure out the other stuff 
 
 
-##(7/21) print metrics ^^ within for loop ---> lol that was my mistake
+##(7/21) print metrics ^^ within for loop
 
+## 7/23 Save model into file for app
+## Determined that Decision Tree is the winner with written explanation, check in project file
+
+## figured that i had to use pkl(pickle) for streamlit, was confused
+jb.dump(models["Decision Tree"], "dt_model.pkl")
+
+# Save the exact column names so app knows how to format the data
+jb.dump(new_X.columns, "model_columns.pkl")
+
+print("model saved to disk")
