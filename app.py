@@ -21,23 +21,34 @@ slt.write("Enter the shipment details below to predict if the package will arriv
 
 slt.subheader("Shipment Details")
 
-# creates split column + dropdown from df
+# creates split column + dropdown from df, just selectbox stuff
 
 col1, col2 = slt.columns(2)
 with col1:
     selected_vendor = slt.selectbox("Select Vendor", df_filtered['vendor'].unique())
     selected_country = slt.selectbox("Destination Country", df_filtered['country'].unique())
+    input_value = slt.number_input("Line Item Value ($)", min_value=0, value=500000)
 with col2:
     selected_mode = slt.selectbox("Shipment Mode", df_filtered['shipment mode'].dropna().unique())
     selected_fulfill = slt.selectbox("Fulfill Via", df_filtered['fulfill via'].unique())
-
+    input_weight = slt.number_input("Weight (kg)", min_value=0, value=25000)        
 ## check
-
 if slt.button("Run Prediction", type="primary"):
     
     # Format the input data
     input_data = pd.DataFrame(columns=model_columns)
-    input_data.loc[0] = 0 
+    input_data.loc[0] = 0.0 
+
+## fills with median
+    for col in input_data.columns:
+        if col in df_filtered.columns and pd.api.types.is_numeric_dtype(df_filtered[col]):
+            input_data.at[0, col] = df_filtered[col].median()
+
+## actual logic part
+    if 'line item value' in input_data.columns: 
+        input_data.at[0, 'line item value'] = input_value
+    if 'weight (kilograms)' in input_data.columns: 
+        input_data.at[0, 'weight (kilograms)'] = input_weight
     
     if f"vendor_{selected_vendor}" in input_data.columns:
         input_data[f"vendor_{selected_vendor}"] = 1
@@ -52,15 +63,15 @@ if slt.button("Run Prediction", type="primary"):
     prediction = model.predict(input_data)[0]
     probability = model.predict_proba(input_data)[0][1]
 
-## Results
+## Results/probability thing. fixed the pecentage shown by changing True --> 0.50
     slt.divider()
     slt.subheader("Prediction Results")
 
-    if prediction == "True":
+    if prediction >= 0.50 :
         slt.error(f"**HIGH RISK OF DELAY**")
         slt.write(f"The model is **{probability * 100:.1f}%** confident this shipment will be late.")
     else:
-        slt.success(f"**LIKELY ON TIME**")
+        slt.info(f"**LIKELY ON TIME**")
         slt.write(f"The model is **{(1 - probability) * 100:.1f}%** confident this shipment will arrive on schedule.")
 
 
@@ -74,18 +85,18 @@ if slt.button("Run Prediction", type="primary"):
     shap_values = explainer.shap_values(input_data)
 
 
-# Safely extract SHAP values regardless of library version
+## extract SHAP values regardless of library version
     if isinstance(shap_values, list):
         # List format: [class_0, class_1]
         instance_shap = shap_values[1][0] if len(shap_values) > 1 else shap_values[0][0]
     elif hasattr(shap_values, "shape") and len(shap_values.shape) == 3:
-        # 3D array format: (samples, features, classes)
+        ## 3D array format: (samples, features, classes)
         instance_shap = shap_values[0, :, 1]
     else:
-        # 2D array format: (samples, features)
+        ## 2D array format: (samples, features)
         instance_shap = shap_values[0]
 
-# Isolate the top 5 features that pushed the prediction the hardest
+## Isolate the top 5 features that pushed the prediction the hardest
     top_indices = np.argsort(np.abs(instance_shap))[-5:]
     top_features = input_data.columns[top_indices]
     top_values = instance_shap[top_indices]
@@ -93,7 +104,7 @@ if slt.button("Run Prediction", type="primary"):
 # plot it
     fig, axes = plt.subplots(figsize=(8,4))
 
-# Color code: pinkadink if it pushes towards Late, green if it pushes towards On Time
+#  pinkadink if it pushes towards Late, green if it pushes towards On Time
     colors = ['#FF1493' if val > 0 else "#46c65e" for val in top_values]
 
     axes.set_title("Top 5 factors for this specific shipment")
@@ -105,3 +116,4 @@ if slt.button("Run Prediction", type="primary"):
     
     slt.caption("Pink shows model was pushed to guess 'Late', green represents 'On Time'.")
 
+## fixes: figured out that weight and item value columns were not included in original dataset(oops), so found columns and added them in fixing the bug

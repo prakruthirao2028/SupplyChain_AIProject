@@ -23,7 +23,9 @@ columns_used = [
     'delivered to client date',
     'vendor',
     'dosage form',
-    'manufacturing site'
+    'manufacturing site',
+    'line item value',
+    'weight (kilograms)'
 ]
 ## initial cleaning process
 
