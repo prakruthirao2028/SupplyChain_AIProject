@@ -16,7 +16,8 @@ model_columns = jb.load("model_columns.pkl")
 ## begin setup of front page
 
 slt.set_page_config(page_title="Project Title", layout="centered")
-slt.title("Supply Chain Delay Predictor")
+slt.title("NeoPath AI v0.1")
+slt.subheader("Supply Chain Delay Predictor for Medicine")
 slt.write("Enter the shipment details below to predict if the package will arrive late")
 
 slt.subheader("Shipment Details")
@@ -71,7 +72,7 @@ if slt.button("Run Prediction", type="primary"):
         slt.error(f"**HIGH RISK OF DELAY**")
         slt.write(f"The model is **{probability * 100:.1f}%** confident this shipment will be late.")
     else:
-        slt.info(f"**LIKELY ON TIME**")
+        slt.success(f"**LIKELY ON TIME**")
         slt.write(f"The model is **{(1 - probability) * 100:.1f}%** confident this shipment will arrive on schedule.")
 
 
