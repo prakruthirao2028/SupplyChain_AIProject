@@ -16,7 +16,7 @@ model_columns = jb.load("model_columns.pkl")
 ## begin setup of front page
 
 slt.set_page_config(page_title="Project Title", layout="centered")
-slt.title("NeoPath AI v0.1")
+slt.title("NeoPath v0.1")
 slt.subheader("Supply Chain Delay Predictor for Medicine")
 slt.write("Enter the shipment details below to predict if the package will arrive late")
 
